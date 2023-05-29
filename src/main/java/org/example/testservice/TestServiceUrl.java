@@ -1,14 +1,13 @@
 package org.example.testservice;
 import org.aeonbits.owner.ConfigFactory;
 import org.example.utils.config.ServiceConfig;
-import org.aeonbits.owner.Config;
 
-public class TestServiceUrl1 {
+public class TestServiceUrl {
 
     ServiceConfig serviceConfig = ConfigFactory.create(ServiceConfig.class);
 
-    String url1 = ServiceConfig.apiUrl1();
-    String url2 = ServiceConfig.apiUrl2();
+    public String url1 = serviceConfig.apiUrl1();
+    public String url2 = serviceConfig.apiUrl2();
 
 
 }
