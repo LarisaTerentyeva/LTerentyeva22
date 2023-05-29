@@ -3,16 +3,10 @@ import org.aeonbits.owner.Config;
 
 @Config.Sources("classpath:config.properties")
 public interface ServiceConfig extends Config {
-    @Key("login_url")
-    String loginUrl();
+    @Config.Key("api_url_1")
+    String apiUrl1();
 
-    @Key("api_test_url")
-    String apiUrl();
-
-    @Key("api_base_path")
-    String basePath();
-
-    @Key("client_id")
-    String clientId();
+    @Config.Key("api_url_2")
+    String apiUrl2();
 
 }
