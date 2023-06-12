@@ -13,6 +13,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -21,7 +23,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import java.time.Duration;
 
 @Epic("Web page UI Tests Epic")
@@ -60,8 +61,8 @@ public class WebPageUITests {
         firstNameInput.sendKeys("Gandalf");
         WebElement lastNameInput = driver.findElement(By.id("lastName"));
         lastNameInput.sendKeys("The Grey");
-        WebElement userEmailInput = driver.findElement(By.id("userEmail"));
-        userEmailInput.sendKeys("palantir@example.com");
+        WebElement userNumberInput = driver.findElement(By.id("userNumber"));
+        userNumberInput.sendKeys("0000000000");
         WebElement selectGenderRadioButton = driver.findElement(By.id("gender-radio-3"));
         actions.click(selectGenderRadioButton).build().perform();
         WebElement submitButton = driver.findElement(By.id("submit"));
@@ -74,8 +75,8 @@ public class WebPageUITests {
 
         WebElement studentNameTable = driver.findElement(By.xpath("//td[text()='Student Name']//following-sibling::*"));
         assertThat(studentNameTable.getText()).contains("Gandalf The Grey");
-        WebElement studentEmailTable = driver.findElement(By.xpath("//td[text()='Student Email']//following-sibling::*"));
-        assertThat(studentEmailTable.getText()).contains("palantir@example.com");
+        WebElement studentMobileTable = driver.findElement(By.xpath("//td[text()='Mobile']//following-sibling::*"));
+        assertThat(studentMobileTable.getText()).contains("0000000000");
         WebElement studentGenderTable = driver.findElement(By.xpath("//td[text()='Gender']//following-sibling::*"));
         assertThat(studentGenderTable.getText()).contains("Other");
     }
@@ -86,29 +87,49 @@ public class WebPageUITests {
     void fillInVariousFields() {
         driver.get(testServiceUrl.url1 + "automation-practice-form ");
         Actions actions = new Actions(driver);
-        WebElement firstNameInput = driver.findElement(By.id("firstName"));
-        firstNameInput.sendKeys("Gandalf");
+
+        WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(3));
+
+        WebElement firstNameInput = driver.findElement(By.xpath("//*[@id=\"firstName\"]"));
+        wait1.until(ExpectedConditions.visibilityOfAllElements(firstNameInput));
         WebElement lastNameInput = driver.findElement(By.id("lastName"));
-        lastNameInput.sendKeys("The Grey");
+        wait1.until(ExpectedConditions.visibilityOfAllElements(lastNameInput));
         WebElement userNumberInput = driver.findElement(By.id("userNumber"));
-        userNumberInput.sendKeys("0000000000");
+        wait1.until(ExpectedConditions.visibilityOfAllElements(userNumberInput));
         WebElement userEmailInput = driver.findElement(By.id("userEmail"));
+        wait1.until(ExpectedConditions.visibilityOfAllElements(userEmailInput));
+        WebElement selectGenderRadioButton = driver.findElement(By.xpath("//*[@id=\"gender-radio-1\"]"));
+
+        firstNameInput.sendKeys("Gandalf");
+        lastNameInput.sendKeys("The Grey");
+        userNumberInput.sendKeys("0000000000");
         userEmailInput.sendKeys("palantir@example.com");
-        WebElement selectGenderRadioButton = driver.findElement(By.id("gender-radio-1"));
         actions.click(selectGenderRadioButton).build().perform();
-        WebElement selectHobbiesCheckbox = driver.findElement(By.id("hobbies-checkbox-3"));
-        actions.moveToElement(selectHobbiesCheckbox).click().build().perform();
-        WebElement subjectsDropdown = driver.findElement(By.id("subjectsInput"));
-        actions.moveToElement(subjectsDropdown).click().sendKeys("Civics").build().perform();
-        WebElement subjectsOptionDropdown = driver.findElement(By.id("react-select-2-option-0"));
-        subjectsOptionDropdown.click();
-        WebElement stateDropdown = driver.findElement(By.id("react-select-3-input"));
-        actions.moveToElement(stateDropdown).click().sendKeys("NCR").build().perform();
-        WebElement stateOptionDropdown = driver.findElement(By.id("react-select-3-option-0"));
-        stateOptionDropdown.click();
+        WebElement selectHobbiesCheckbox = driver.findElement(By.xpath("//*[@id=\"hobbies-checkbox-3\"]"));
+        actions.scrollByAmount(0,2000);
+        actions.click(selectHobbiesCheckbox).build().perform();
         WebElement userAddressInput = driver.findElement(By.id("currentAddress"));
-        actions.moveToElement(userAddressInput).click().build().perform();
-        actions.sendKeys("Shire");
+        actions.click(userAddressInput).sendKeys("Shire");
+        WebElement subjectsDropdown = driver.findElement(By.id("subjectsInput"));
+        actions.moveToElement(subjectsDropdown).click().sendKeys("Civics",Keys.NULL,Keys.ENTER,Keys.NULL).build().perform();
+        wait1.until(ExpectedConditions.visibilityOfAllElements(driver.findElement(By.xpath("//*[@id=\"subjectsContainer\"]/div/div[1]/div[1]"))));
+
+        String zoomJS;
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        zoomJS = "document.body.style.zoom='0.5'";
+        js.executeScript(zoomJS);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        WebElement stateDropdown = driver.findElement(By.id("react-select-3-input"));
+        WebElement cityDropdown = driver.findElement(By.xpath("//*[@id=\"react-select-4-input\"]"));
+        stateDropdown.sendKeys("NCR",Keys.ENTER);
+        cityDropdown.sendKeys("Delhi",Keys.ENTER);
+
         WebElement submitButton = driver.findElement(By.id("submit"));
         submitButton.submit();
 
@@ -128,7 +149,7 @@ public class WebPageUITests {
         WebElement studentSubjectsTable = driver.findElement(By.xpath("//td[text()='Subjects']//following-sibling::*"));
         assertThat(studentSubjectsTable.getText()).contains("Civics");
         WebElement stateCityTable = driver.findElement(By.xpath("//td[text()='State and City']//following-sibling::*"));
-        assertThat(stateCityTable.getText()).contains("NCR");
+        assertThat(stateCityTable.getText()).contains("NCR Delhi");
         WebElement studentHobbiesTable = driver.findElement(By.xpath("//td[text()='Hobbies']//following-sibling::*"));
         assertThat(studentHobbiesTable.getText()).contains("Music");
         WebElement studentAddressTable = driver.findElement(By.xpath("//td[text()='Address']//following-sibling::*"));
@@ -292,12 +313,14 @@ public class WebPageUITests {
     void accordionTest() {
         driver.get(testServiceUrl.url1 + "accordian");
         Actions actions = new Actions(driver);
+        actions.scrollByAmount(0,1000);
         WebElement openAccordionButton = driver.findElement(By.xpath("//*[@id=\"section2Heading\"]"));
         WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait1.until(ExpectedConditions.elementToBeClickable(openAccordionButton));
         actions.click(openAccordionButton).build().perform();
 
         WebElement accordionBody = driver.findElement(By.xpath("//*[@id=\"section2Content\"]"));
+        actions.scrollToElement(accordionBody);
         WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait2.until(ExpectedConditions.visibilityOfAllElements(accordionBody));
         assertThat(accordionBody.getText()).contains("Hampden-Sydney College");
